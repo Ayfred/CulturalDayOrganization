@@ -27,14 +27,14 @@ int totalCost = 0;// Total des coûts (fonction objectif)
 int capacities[NUM_DAYS] = { 0, 0, 0, 0, 0, 0, 0 }; // capacités de chaque jour
 
 //Initialisation des variables (modifiable)
-int max_capacity = 250; //Capacité maximale de population autorisée par jour
+int max_capacity = 350; //Capacité maximale de population autorisée par jour
 char *files[FILENUM] = {"pb10.csv", "pb20.csv", "pb30.csv", "pb40.csv", "pb50.csv"}; //Tableau des fichiers
 
 
 //Fonction principale
 int main(void){
     //Boucle de lecture des fichiers
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < FILENUM; i++){
         //Lecture des données
         readData(files[i], families);
 
@@ -116,12 +116,11 @@ int assign_families(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS])
             if (capacities[choice_day] + number <= max_capacity) // Si la capacité du jour est inférieure à la capacité maximale
             {
                 affected_day = choice_day; // Affectation du jour
-                printf("Famille %d (%d) affectee au jour %d\n", i+2, number, affected_day);
                 break;
             }
         }
 
-        // Si aucun jour n'est disponible, on ajoute la famille au jour qui a la capacité la plus proche de 125
+        // Si aucun jour n'est disponible, on augmente la capacité de tous les jours par 50 et on réaffecte la famille
         if (affected_day == -1) 
         {
             int min_diff = abs(125 - capacities[0]);
@@ -246,3 +245,17 @@ void resetData(){
         capacities[i] = 0; // Capacité de chaque jour définie à 0
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+Question 2
+On affecte les familles par ordre décroissant des pourcentages.
+On affecte les familles au jour avec le moins de participants afin de mieux gérer le flux de participants 
+et d'éviter de surcharger les autres jours où il y a déjà beaucoup de participants.En évitant de surcharger 
+certains jours, cela permet de mieux répartir les coûts de l'organisation de l'événement sur l'ensemble des jours, 
+ce qui peut aider à réduire les coûts globaux.
+Par exemple pour l'événement 1, on affecte les familles au jour 4 avec le moins de participants 13.32%
+Idem pour l'événement 2, on affecte les familles au jour 6 avec le moins de participants 13.83%
+Et pour l'événement 3, on affecte les familles au jour 1 avec le moins de participants 12.74%
+*/
