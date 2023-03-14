@@ -39,7 +39,7 @@ int main(void){
         readData(files[i], families);
 
         //Affection des familles à un jour et calcul du coût total
-        totalCost = assign_families(numberOfRows, numberOfColumns, families);
+        totalCost = assignFamilies(numberOfRows, numberOfColumns, families);
 
         //Affichage des résultats
         showResults(i);
@@ -86,7 +86,7 @@ void readData(char *fileName, int families[MAXROWS][MAXCOLS])
 
 
 // Méthode d'affection des familles à un jour et calcul du coût total
-int assign_families(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS])
+int assignFamilies(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS])
 {
     // Initialisation des variables
     int nb_families = num_rows; // Nombre de familles
