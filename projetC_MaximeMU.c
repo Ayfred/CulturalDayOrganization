@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////
 // Auteur: Maxime MU                                          //
-// Date: 14/03/2023                                           //
-// Description:                                               //
+// Date: 14/03/2023                                           //                                             //
 ////////////////////////////////////////////////////////////////
 
 // Importation des bibliothèques
@@ -27,7 +26,7 @@ int totalCost = 0;// Total des coûts (fonction objectif)
 int capacities[NUM_DAYS] = { 0, 0, 0, 0, 0, 0, 0 }; // capacités de chaque jour
 
 //Initialisation des variables (modifiable)
-int max_capacity = 350; //Capacité maximale de population autorisée par jour
+int max_capacity = 300; //Capacité maximale de population autorisée par jour
 char *files[FILENUM] = {"pb10.csv", "pb20.csv", "pb30.csv", "pb40.csv", "pb50.csv"}; //Tableau des fichiers
 
 
@@ -120,18 +119,17 @@ int assignFamilies(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS])
             }
         }
 
-        // Si aucun jour n'est disponible, on augmente la capacité de tous les jours par 50 et on réaffecte la famille
+        // Si aucun jour n'est disponible sur les choix de la famille, alors on l'affecte au jour qui a la capacité la plus petite
         if (affected_day == -1) 
         {
-            int min_diff = abs(125 - capacities[0]);
             affected_day = 0;
-            for (int j = 1; j < 7; j++) 
-            {
-                int diff = abs(125 - capacities[j]);
-                if (diff < min_diff) 
-                {
-                    min_diff = diff;
-                    affected_day = j;
+            int min = capacities[0];  // Minimum de la liste des capacités
+
+            for (int i = 0; i < NUM_DAYS; i++) {
+                if (capacities[i] < min) 
+                {   // Si la capacité du jour i est inférieure à la capacité minimale
+                    min = capacities[i]; // Mise à jour de la capacité minimale
+                    affected_day = i;  // Affectation du jour i
                 }
             }
         }
