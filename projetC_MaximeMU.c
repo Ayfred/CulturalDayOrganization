@@ -256,4 +256,8 @@ ce qui peut aider à réduire les coûts globaux.
 Par exemple pour l'événement 1, on affecte les familles au jour 4 avec le moins de participants 13.32%
 Idem pour l'événement 2, on affecte les familles au jour 6 avec le moins de participants 13.83%
 Et pour l'événement 3, on affecte les familles au jour 1 avec le moins de participants 12.74%
+
+Une amélioration est d'affecter les familles avec le nombre de membres le plus élevé en premier afin de réduire au
+maximum les indemnités à payer pour les familles. Puisqu'en effet, les familles avec le nombre de membres le plus
+petits ont une indemnité plus faible que les familles avec le nombre de membres le plus élevés.
 */
