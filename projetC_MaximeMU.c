@@ -15,31 +15,40 @@
 #include <stdlib.h> //Bibliothèque standard
 #include <string.h> //Bibliothèque de manipulation de chaînes de caractères
 #include <time.h> //Bibliothèque de gestion du temps
+#include <math.h> //Bibliothèque mathématique
 
-//Définition des constantes
+// Définition des constantes
 #define MAXROWS 1000 //Nombre de lignes maximum
 #define MAXCOLS 100  //Nombre de colonnes maximum
 #define NUM_DAYS 7   //Nombre de jours
 #define FILENUM 5    //Nombre de fichiers
 
-//Calcul des fonctions
-int indemnity(int choice, int number); //Fonction d'indemnité
-int penalty(int capa_today, int capa_tomorrow, int day);//Fonction de pénalité
+// Déclaration des fonctions
+void readData(char *fileName, int families[MAXROWS][MAXCOLS]); //Lecture des données
+int assignFamilies(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS]); //Affectation des familles à un jour
+double indemnity(int choice, int number); //Fonction d'indemnité
+double penalty(int capa_today, int capa_tomorrow, int day);//Fonction de pénalité
+int compare(const void* a, const void* b); //Fonction de comparaison
+void sortDataAscending(int families[MAXROWS][MAXCOLS]); //Tri des données par ordre croissant
+void shuffle(int tableau[MAXROWS][MAXCOLS]); //Tri des données par ordre aléatoire
+void findMinimalTotalCost(int minimalTotalCost[], int totalCost, int k); //Recherche du coût total minimum
+void showResults(int i); //Affichage des résultats
+void resetData(); //Réinitialisation des données
 
-//Initialisation des variables
+// Initialisation des variables
 int families[MAXROWS][MAXCOLS]; //Tableau des familles
 int numberOfRows = 0;   // Nombre de lignes
 int numberOfColumns = 0; // Nombre de colonnes
 int totalCost = 0;// Total des coûts (fonction objectif)
 int capacities[NUM_DAYS] = { 0, 0, 0, 0, 0, 0, 0 }; // capacités de chaque jour
 
-//Initialisation des variables (modifiable)
+// Initialisation des variables (modifiable)
 int max_capacity = 300; //Capacité maximale de population autorisée par jour
 char *files[FILENUM] = {"pb10.csv", "pb20.csv", "pb30.csv", "pb40.csv", "pb50.csv"}; //Tableau des fichiers
 
-//Optimisation du résultat
-int interation = 0; //Nombre d'itérations
-//int interation = 550; //Nombre d'itérations
+// Optimisation du résultat
+int interation = 0; //Nombre d'itérations et décommentez la ligne 68 pour tester les optimisations de la méthode de tri par ordre croissant
+//int interation = 550; //Nombre d'itérations et commentez la ligne 71 pour tester les optimisations de la méthode de tri aléatoire
 int minimumTotalCost[] = {}; //Tableau des coûts totaux minimums
 
 
@@ -56,10 +65,10 @@ int main(void){
             readData(files[i], families);
 
             //Tri des données par ordre croissant
-            //sortDataAscending(families);
+            //sortDataAscending(families); // Une itération suffit pour tester les optimisations (Commentez la ligne 50 et décommentez la ligne 51)
 
-            //Tri des données par ordre aléatoire
-            //shuffle(families);
+            //Tri des données par ordre aléatoire 
+            //shuffle(families); // Commenter les nombres itérations pour tester les optimisations (ligne 51) et décommentez la ligne 50
 
             /*// affichage du tableau trié
             for (int i = 0; i < numberOfRows; i++) {
@@ -72,6 +81,7 @@ int main(void){
             //Affection des familles à un jour et calcul du coût total
             totalCost = assignFamilies(numberOfRows, numberOfColumns, families);
 
+            //Recherche du coût total minimum
             findMinimalTotalCost(minimumTotalCost, totalCost, k);
 
             //Affichage des résultats
@@ -161,10 +171,14 @@ int assignFamilies(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS])
             int min = capacities[0];  // Minimum de la liste des capacités
 
             for (int j = 0; j < NUM_DAYS; j++) {
-                if (capacities[j] < min)
-                {   // Si la capacité du jour i est inférieure à la capacité minimale
+                if (capacities[j] < min && capacities[j] + number <= max_capacity)
+                {   // Si la capacité du jour i est inférieure à la capacité minimale et que la capacité du jour i + le nombre de membres de la famille est inférieure à la capacité maximale
                     min = capacities[j]; // Mise à jour de la capacité minimale
                     affected_day = j;  // Affectation du jour j
+                }
+                else
+                {   //Si tous les jours sont saturées, on affecte alors la famille à leur premier choix
+                    affected_day = choice[0];
                 }
             }
         }
@@ -207,46 +221,50 @@ int assignFamilies(int num_rows, int num_cols, int families[MAXROWS][MAXCOLS])
         {
             penalties += penalty(capacities[day], capacities[day], day); // Calcul de la pénalité pour chaque jour à l'aide de la méthode penalty
         }
+        //printf("penalite %d \n", penalties);
     }
-    //printf("penalites = %d et indemnites = %d\n", penalties, indemnities);
+    //printf("Penalites = %d et Indemnites = %d\n", penalties, indemnities);
     return indemnities + penalties; // Retourne le coût total
 }
 
 //Méthode de calcul des indemnités
-int indemnity(int family_choice, int number)
+double indemnity(int family_choice, int number)
 {
+    double number1 = (double)number;//Conversion du nombre de membres de la famille en double
     if (family_choice == 0)//Si la famille a choisi la préférence 0
     {
-        return 0;//Pas d'indemnité
+        return 0.;//Pas d'indemnité
     }
     else if (family_choice == 1)//Si la famille a choisi la préférence 1
     {
-        return 50;//Indemnité de 50
+        return 50.;//Indemnité de 50
     }
     else if (family_choice == 2)//Si la famille a choisi la préférence 2
     {
-        return 50+9*number;//Indemnité de 50 + 9 * nombre de membres de la famille
+        return 50.+9.*number1;//Indemnité de 50 + 9 * nombre de membres de la famille
     }
     else if (family_choice == 3)//Si la famille a choisi la préférence 3
     {
-        return 100+9*number;//Indemnité de 100 + 9 * nombre de membres de la famille
+        return 100.+9.*number1;//Indemnité de 100 + 9 * nombre de membres de la famille
     }
     else if (family_choice == 4)//Si la famille a choisi la préférence 4
     {
-        return 200+9*number;//Indemnité de 200 + 9 * nombre de membres de la famille
+        return 200.+9.*number1;//Indemnité de 200 + 9 * nombre de membres de la famille
     }
 }
 
 //Méthode de calcul des pénalités
-int penalty(int capacityOfToday, int capacityOfTomorrow, int day)
+double penalty(int capacityOfToday, int capacityOfTomorrow, int day)
 {
+    double capacityOfToday1 = (double) capacityOfToday;
+    double capacityOfTomorrow1 = (double) capacityOfTomorrow;
     if(day < 6)//Si le jour est un jour de lundi à samedi
     {
-        return ((capacityOfToday-125) / 400) * pow(capacityOfToday,(abs(capacityOfToday-capacityOfTomorrow) / 50)); //Calcul de la pénalité
+        return ((capacityOfToday1-125.) / 400.) * pow(capacityOfToday1,(abs(capacityOfToday1-capacityOfTomorrow1) / 50.)); //Calcul de la pénalité
     }
     else//Si le jour est un dimanche
     {
-        return ((capacityOfToday-125) / 400) * pow(capacityOfToday,1); //Calcul de la pénalité
+        return ((capacityOfToday-125.) / 400.) * pow(capacityOfToday,0.); //Calcul de la pénalité
     }
 }
 
@@ -254,14 +272,16 @@ int penalty(int capacityOfToday, int capacityOfTomorrow, int day)
 //Méthode d'optimisation
 
 // fonction de comparaison pour le tri croissant
-int compare(const void* a, const void* b) {
+int compare(const void* a, const void* b) 
+{
     const int* x = *(const int**)a;//On récupère la première colonne de la ligne a
     const int* y = *(const int**)b;//On récupère la première colonne de la ligne b
     return y[0] - x[0];//On compare les deux valeurs
 }
 
 // Méthode de tri croissant
-void sortDataAscending(int families[MAXROWS][MAXCOLS]) {
+void sortDataAscending(int families[MAXROWS][MAXCOLS]) 
+{
     int temp[MAXCOLS]; // tableau temporaire pour échanger les lignes
 
     // tri croissant en utilisant la première colonne comme clé
@@ -321,7 +341,8 @@ void findMinimalTotalCost(int minimalTotalCost[], int totalCost, int k)
 
 
 //Méthode d'affichage des résultats
-void showResults(int i){
+void showResults(int i)
+{
     printf("----- %s-----\n", "Tableau de donnees :");
     printf("%s\n", files[i]);
 
